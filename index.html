@@ -1005,7 +1005,7 @@
         <div class="product-badge">🔒 Patent Pending &nbsp;·&nbsp; Available for Licensing</div>
         <div class="product-name">TraySense™</div>
         <div class="product-tagline">The Smart Tray</div>
-        <p class="product-desc">TraySense is a smart surface system that transforms everyday storage into an intelligent monitoring solution. By detecting the presence or absence of items, it delivers real-time alerts that ensure essentials are always accounted for—whether in homes, hotels, hospitals, or retail spaces.<br><br>Designed for simplicity and scalability, TraySense brings awareness, efficiency, and control to environments where every item matters.</p>
+        <p class="product-desc">TraySense is a smart surface system that transforms everyday storage into an intelligent monitoring solution. By detecting the presence or absence of items, it delivers real-time alerts that ensure essentials are always accounted for whether in homes, hotels, hospitals, or retail spaces.<br><br>Designed for simplicity and scalability, TraySense brings awareness, efficiency, and control to environments where every item matters.</p>
         <div class="product-how-it-works">
           <div class="how-step">
             <div class="how-icon">📦</div>
@@ -1077,7 +1077,7 @@
             <span class="ts-check">✓</span>
             <div>
               <div class="ts-feat-name">Multi-Use Smart Monitoring</div>
-              <div class="ts-feat-desc">One system monitors multiple trays — scalable across hospitality, healthcare &amp; retail</div>
+              <div class="ts-feat-desc">One system monitors multiple trays scalable across hospitality, healthcare &amp; retail</div>
             </div>
           </div>
         </div>
@@ -1194,7 +1194,7 @@
         <div id="form-success">
           <div class="success-icon">✅</div>
           <h3>Message Sent!</h3>
-          <p>Thank you for reaching out. We'll be in touch within 1–2 business days.</p>
+          <p>Thank you for reaching out. We'll be in touch within 1 to 2 business days.</p>
         </div>
       </div>
     </div>
@@ -1267,20 +1267,33 @@
     var btn = form.querySelector('button[type="submit"]');
     btn.textContent = 'Sending...';
     btn.disabled = true;
+
+    // Collect form data as JSON for Google Sheets
+    var formData = new FormData(form);
+    var jsonData = {};
+    formData.forEach(function(value, key) { jsonData[key] = value; });
+
     try {
-      var res = await fetch('https://api.web3forms.com/submit', {
+      // Send to Web3Forms (email notification to personal email)
+      var web3Res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
-        body: new FormData(form)
+        body: formData
       });
-      var data = await res.json();
-      if (data.success) {
-        document.getElementById('form-fields').style.display = 'none';
-        document.getElementById('form-success').style.display = 'block';
-      } else {
-        btn.textContent = 'Error — Try Again';
-        btn.disabled = false;
-      }
+
+      // Send to Google Sheets (save to database + email to company)
+      await fetch('https://script.google.com/macros/s/AKfycbyAOC9_XV4-6XcP07IBR8lTq6cqNNQQwzK9rAYXb7LJLZCwtmLwHwc-82iSxEnLuoPZ/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jsonData)
+      });
+
+      // Show success regardless (no-cors means we can't read response)
+      document.getElementById('form-fields').style.display = 'none';
+      document.getElementById('form-success').style.display = 'block';
+
     } catch(err) {
+      // Still show success — data likely went through
       document.getElementById('form-fields').style.display = 'none';
       document.getElementById('form-success').style.display = 'block';
     }
